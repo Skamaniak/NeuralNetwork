@@ -8,9 +8,10 @@ package cz.maks.train
 class TrainSet(
         val inputCount: Int,
         val outputCount: Int,
-        val data: MutableList<DataValue> = ArrayList()
+        var data: Array<DataValue> = emptyArray()
 ) {
-    fun addData(inputs: List<Double>, outputs: List<Double>): TrainSet {
+
+    fun addData(inputs: DoubleArray, outputs: DoubleArray): TrainSet {
         addData(DataValue(
                 inputs = inputs,
                 outputs = outputs
@@ -20,7 +21,7 @@ class TrainSet(
 
     fun addData(dataValue: DataValue): TrainSet {
         validateDataEntry(dataValue)
-        data.add(dataValue)
+        data = data.plus(dataValue)
         return this
     }
 
@@ -57,8 +58,8 @@ class TrainSet(
 }
 
 data class DataValue(
-        val inputs: List<Double>,
-        val outputs: List<Double>
+        val inputs: DoubleArray,
+        val outputs: DoubleArray
 ) {
     val inputCount = inputs.size
     val outputCount = outputs.size

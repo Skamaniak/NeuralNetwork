@@ -25,7 +25,7 @@ object FilePersistence {
 
     fun store(network: NeuralNetwork, file: File) {
         val model = SerialisationModel.fromComputationalModel(network)
-        val json = MAPPER.writeValueAsString(model)
+        val json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(model)
         file.writeText(json)
 
         file.outputStream().use {

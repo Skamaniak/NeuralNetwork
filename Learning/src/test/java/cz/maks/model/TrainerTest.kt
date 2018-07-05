@@ -22,23 +22,23 @@ class TrainerTest {
                 .build(1)
 
         val trainSet = TrainSet(2, 1)
-                .addData(listOf(0.0, 0.0), listOf(0.0))
-                .addData(listOf(1.0, 0.0), listOf(1.0))
-                .addData(listOf(0.0, 1.0), listOf(1.0))
-                .addData(listOf(1.0, 1.0), listOf(0.0))
+                .addData(doubleArrayOf(0.0, 0.0), doubleArrayOf(0.0))
+                .addData(doubleArrayOf(1.0, 0.0), doubleArrayOf(1.0))
+                .addData(doubleArrayOf(0.0, 1.0), doubleArrayOf(1.0))
+                .addData(doubleArrayOf(1.0, 1.0), doubleArrayOf(0.0))
 
         val trainer = Trainer(neuralNetwork)
         trainer.train(trainSet, 2, 1000, 100)
 
         neuralNetwork.connections.forEach { println(it)}
 
-        Assertions.assertThat(neuralNetwork.evaluate(listOf(0.0, 0.0))[0])
+        Assertions.assertThat(neuralNetwork.evaluate(doubleArrayOf(0.0, 0.0))[0])
                 .isBetween(0.0, 0.05)
-        Assertions.assertThat(neuralNetwork.evaluate(listOf(0.0, 1.0))[0])
+        Assertions.assertThat(neuralNetwork.evaluate(doubleArrayOf(0.0, 1.0))[0])
                 .isBetween(0.95, 1.0)
-        Assertions.assertThat(neuralNetwork.evaluate(listOf(1.0, 0.0))[0])
+        Assertions.assertThat(neuralNetwork.evaluate(doubleArrayOf(1.0, 0.0))[0])
                 .isBetween(0.95, 1.0)
-        Assertions.assertThat(neuralNetwork.evaluate(listOf(1.0, 1.0))[0])
+        Assertions.assertThat(neuralNetwork.evaluate(doubleArrayOf(1.0, 1.0))[0])
                 .isBetween(0.0, 0.05)
 
     }

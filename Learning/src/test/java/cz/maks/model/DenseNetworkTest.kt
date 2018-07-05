@@ -17,21 +17,21 @@ class DenseNetworkTest {
                 .build(1)
 
         val trainSet = TrainSet(2, 1)
-                .addData(listOf(0.0, 0.0), listOf(0.0))
-                .addData(listOf(1.0, 0.0), listOf(1.0))
-                .addData(listOf(0.0, 1.0), listOf(1.0))
-                .addData(listOf(1.0, 1.0), listOf(0.0))
+                .addData(doubleArrayOf(0.0, 0.0), doubleArrayOf(0.0))
+                .addData(doubleArrayOf(1.0, 0.0), doubleArrayOf(1.0))
+                .addData(doubleArrayOf(0.0, 1.0), doubleArrayOf(1.0))
+                .addData(doubleArrayOf(1.0, 1.0), doubleArrayOf(0.0))
 
         val trainer = Trainer(neuralNetwork)
         trainer.train(trainSet, 100000)
 
-        assertThat(neuralNetwork.evaluate(listOf(0.0, 0.0))[0])
+        assertThat(neuralNetwork.evaluate(doubleArrayOf(0.0, 0.0))[0])
                 .isBetween(0.0, 0.01)
-        assertThat(neuralNetwork.evaluate(listOf(0.0, 1.0))[0])
+        assertThat(neuralNetwork.evaluate(doubleArrayOf(0.0, 1.0))[0])
                 .isBetween(0.99, 1.0)
-        assertThat(neuralNetwork.evaluate(listOf(1.0, 0.0))[0])
+        assertThat(neuralNetwork.evaluate(doubleArrayOf(1.0, 0.0))[0])
                 .isBetween(0.99, 1.0)
-        assertThat(neuralNetwork.evaluate(listOf(1.0, 1.0))[0])
+        assertThat(neuralNetwork.evaluate(doubleArrayOf(1.0, 1.0))[0])
                 .isBetween(0.0, 0.01)
 
     }

@@ -10,15 +10,15 @@ class DenseNetworkBuilder(
         private val hiddenLayerNeurons: MutableList<Int> = ArrayList()
 ) {
     companion object {
-        fun generateInputs(inputCount: Int): List<Input> {
+        fun generateInputs(inputCount: Int): Array<Input> {
             val inputs = ArrayList<Input>()
             for (i in 0 until inputCount) {
                 inputs.add(Input())
             }
-            return inputs
+            return inputs.toTypedArray()
         }
 
-        fun generateOutputs(outputCount: Int, triggerFunction: TriggerFunction): List<Neuron> {
+        fun generateOutputs(outputCount: Int, triggerFunction: TriggerFunction): Array<Neuron> {
             val outputs = ArrayList<Neuron>()
             for (i in 0 until outputCount) {
                 outputs.add(Neuron(
@@ -26,10 +26,10 @@ class DenseNetworkBuilder(
                         name = "output$i"
                 ))
             }
-            return outputs
+            return outputs.toTypedArray()
         }
 
-        fun generateHiddenNeurons(outputCount: Int, order: Int, triggerFunction: TriggerFunction): List<Neuron> {
+        fun generateHiddenNeurons(outputCount: Int, order: Int, triggerFunction: TriggerFunction): Array<Neuron> {
             val neurons = ArrayList<Neuron>()
             for (i in 0 until outputCount) {
                 neurons.add(Neuron(
@@ -37,11 +37,11 @@ class DenseNetworkBuilder(
                         name = "hidden $order-$i"
                 ))
             }
-            return neurons
+            return neurons.toTypedArray()
         }
 
         // Extension
-        fun NeuralNetwork.wireUp( inputs: Collection<ConnectionInput>, outputs: Collection<Neuron>) {
+        fun NeuralNetwork.wireUp( inputs: Array<out ConnectionInput>, outputs: Array<Neuron>) {
             inputs.forEach {
                 val input = it
                 outputs.forEach {
@@ -59,7 +59,7 @@ class DenseNetworkBuilder(
     fun build(outputCount: Int): NeuralNetwork {
         val network = generateNetwork(outputCount)
 
-        val neurons = ArrayList<Collection<Neuron>>()
+        val neurons = ArrayList<Array<Neuron>>()
         for (hiddenLayer in network.hiddenLayers) {
             neurons.add(hiddenLayer.neurons)
         }

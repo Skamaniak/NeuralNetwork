@@ -31,7 +31,7 @@ object ValidationUtils {
         }
     }
 
-    fun validateInputValues(inputValues: Collection<Double>, network: NeuralNetwork) {
+    fun validateInputValues(inputValues: DoubleArray, network: NeuralNetwork) {
         if (inputValues.size != network.inputCount) {
             throw IllegalArgumentException("Number of provided input values ${inputValues.size} doesn't match " +
                     "number of neural network inputs ${network.inputCount}")

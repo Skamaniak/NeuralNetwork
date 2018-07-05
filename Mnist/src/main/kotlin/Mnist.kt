@@ -7,6 +7,7 @@ import cz.maks.persistence.FilePersistence
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet
 import cz.maks.train.Trainer
+import kotlin.system.measureTimeMillis
 
 /**
  * Created by Jan Skrabal skrabalja@gmail.com
@@ -19,9 +20,14 @@ fun main(args: Array<String>) {
 
     val trainSet = createTrainSet(0, 29999, DataSetType.TRAIN)
 
-    val trainer = Trainer(network, 0.3)
-    trainer.train(trainSet, 50, 50, 100)
-
+    val took = measureTimeMillis {
+        val trainer = Trainer(network, 0.3)
+        trainer.train(trainSet, 500, 100, 100)
+    }
+    println("Took: $took ms")
+    FilePersistence.store(network, "test")
+//
+//    val network = FilePersistence.load("test")
     val testSet = createTrainSet(0, 9999, DataSetType.TRAIN)
     testTrainSet(network, testSet, 10)
 }
@@ -50,12 +56,12 @@ fun createTrainSet(start: Int, end: Int, type: DataSetType): TrainSet {
                 println("prepared: $i")
             }
 
-            val output = mutableListOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+            val output = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
             output[labelSet.readLabel()] = 1.0
 
-            val input = ArrayList<Double>(28 * 28)
+            val input = DoubleArray(28 * 28)
             for (j in 0 until 28 * 28) {
-                input.add(j, (imageSet.read().toDouble() / 256.0))
+                input[j] = (imageSet.read().toDouble() / 256.0)
             }
 
             trainSet.addData(DataValue(input, output))
@@ -88,7 +94,7 @@ fun testTrainSet(net: NeuralNetwork, set: TrainSet, printSteps: Int) {
     println("Testing finished, RESULT: $correct / $setSize  -> ${(correct.toDouble() / setSize) * 100} %")
 }
 
-fun indexOfHighestValue(numbers: List<Double>): Int {
+fun indexOfHighestValue(numbers: DoubleArray): Int {
     var highestValueIndex = 0
     var highestValue = Double.MIN_VALUE
 

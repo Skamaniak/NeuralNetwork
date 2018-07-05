@@ -1,8 +1,6 @@
 package cz.maks.train
 
-import cz.maks.model.HiddenLayer
 import cz.maks.model.NeuralNetwork
-import cz.maks.model.Neuron
 import cz.maks.util.ValidationUtils
 
 /**
@@ -13,7 +11,14 @@ class Trainer(
         private val learningRate: Double = 0.3
 ) {
 
-    fun train(inputValues: List<Double>, targets: List<Double>, learningRate: Double) {
+    private val hiddenNeurons = network.hiddenLayers
+            .flatMap {it.neurons.toList()}
+            .toTypedArray()
+
+    private val reversedHiddenNeurons = hiddenNeurons
+            .reversed()
+
+    fun train(inputValues: DoubleArray, targets: DoubleArray, learningRate: Double) {
         network.evaluate(inputValues)
         adjust(targets, learningRate)
     }
@@ -25,8 +30,9 @@ class Trainer(
 
     fun train(trainSet: TrainSet) {
         ValidationUtils.validateCompatibility(trainSet, network)
-        trainSet.data
-                .forEach(this::train)
+        for (dataValue in trainSet.data) {
+            train(dataValue)
+        }
     }
 
     fun train(trainSet: TrainSet, loops: Int) {
@@ -55,27 +61,29 @@ class Trainer(
 
         network.evaluate(dataValue.inputs)
 
-        val acc = (0 until dataValue.outputCount)
-                .map { Math.pow(dataValue.outputs[it] - network.outputs[it].result, 2.0) }
-                .sum()
-        return acc / (2.0 * dataValue.outputCount)
+        var errorSum = 0.0
+        for (ind in 0 until dataValue.outputCount) {
+            errorSum += Math.pow(dataValue.outputs[ind] - network.outputs[ind].result, 2.0)
+        }
+        return errorSum / (2.0 * dataValue.outputCount)
     }
 
     fun meanSquareError(trainSet: TrainSet): Double {
         ValidationUtils.validateCompatibility(trainSet, network)
 
-        val acc = trainSet.data
-                .map { meanSquareError(it) }
-                .sum()
-        return acc / trainSet.data.size
+        var errorSum = 0.0
+        for (dataValue in trainSet.data) {
+            errorSum += meanSquareError(dataValue)
+        }
+        return errorSum / trainSet.data.size
     }
 
-    private fun adjust(targets: List<Double>, learningRate: Double) {
+    private fun adjust(targets: DoubleArray, learningRate: Double) {
         computeErrorSignals(targets)
         adjust(learningRate)
     }
 
-    private fun computeErrorSignals(targets: List<Double>) {
+    private fun computeErrorSignals(targets: DoubleArray) {
         validateTargets(targets)
 
         for (ind in 0 until targets.size) {
@@ -83,26 +91,27 @@ class Trainer(
             outputNeuron.computeErrorSignal(targets[ind])
         }
 
-        network.hiddenLayers
-                .reversed()
-                .flatMap(HiddenLayer::neurons)
-                .forEach(Neuron::computeErrorSignal)
+        for (hiddenNeuron in reversedHiddenNeurons) {
+            hiddenNeuron.computeErrorSignal()
+        }
     }
 
     private fun adjust(learningRate: Double) {
-        network.outputLayer.neurons
-                .forEach({ it.adjustBias(learningRate) })
+        for (outputNeuron in network.outputLayer.neurons) {
+            outputNeuron.adjustBias(learningRate)
+        }
 
-        network.hiddenLayers
-                .flatMap(HiddenLayer::neurons)
-                .forEach({ it.adjustBias(learningRate) })
+        for (hiddenNeuron in hiddenNeurons) {
+            hiddenNeuron.adjustBias(learningRate)
+        }
 
-        network.connections
-                .forEach({ it.adjustWeight(learningRate) })
+        for (connection in network.connections) {
+            connection.adjustWeight(learningRate)
+        }
     }
 
 
-    private fun validateTargets(targets: Collection<Double>) {
+    private fun validateTargets(targets: DoubleArray) {
         val targetsCount = targets.size
         val outputNeuronsCount = network.outputLayer.neurons.size
         if (targetsCount != outputNeuronsCount) {

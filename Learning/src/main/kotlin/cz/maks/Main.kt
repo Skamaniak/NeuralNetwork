@@ -10,7 +10,7 @@ import cz.maks.train.Trainer
  * Created by Jan Skrabal skrabalja@gmail.com
  */
 fun main(args: Array<String>) {
-    val neuralNetwork = DenseNetworkBuilder(2,TriggerFunction.SIGMOID)
+    var neuralNetwork = DenseNetworkBuilder(2,TriggerFunction.SIGMOID)
             .addHiddenLayer(3)
             .build(1)
 

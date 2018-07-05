@@ -2,8 +2,6 @@ package cz.maks.model
 
 import cz.maks.util.ValidationUtils
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
 
 interface ConnectionInput {
     fun getValue(): Double
@@ -19,11 +17,12 @@ object RandomUtils {
 
 class Neuron(
         private val name: String = "unknown",
-        private val triggerFunction: TriggerFunction,
-        private var inputConnections: MutableCollection<Connection> = HashSet(),
-        private var outputConnections: MutableCollection<Connection> = HashSet(),
+        private val triggerFunction: TriggerFunction = TriggerFunction.SIGMOID,
+        private var inputConnections: Array<Connection> = emptyArray(),
+        private var outputConnections: Array<Connection> = emptyArray(),
         var result: Double = 0.0,
         var errorSignal: Double = 0.0,
+        var outputDerivative: Double = 0.0,
         var bias: Double = RandomUtils.generateRandom(-0.5, 0.7)
 ) : ConnectionInput {
 
@@ -32,18 +31,20 @@ class Neuron(
     }
 
     fun addInputConnection(connection: Connection) {
-        inputConnections.add(connection)
+        inputConnections = inputConnections.plus(connection)
     }
 
     fun addOutputConnection(connection: Connection) {
-        outputConnections.add(connection)
+        outputConnections = outputConnections.plus(connection)
     }
 
     fun computeOutput() {
-        val summedInputs = inputConnections
-                .map(Connection::computeWeightedResult)
-                .sum()
+        var summedInputs = 0.0
+        for (con in inputConnections) {
+            summedInputs += con.computeWeightedResult()
+        }
         result = triggerFunction.apply(summedInputs + bias)
+        outputDerivative = computeOutputDerivative()
     }
 
     fun adjustBias(learningRate: Double) {
@@ -55,17 +56,18 @@ class Neuron(
      * Computes error signal if the target value is not available. This is typically used for the hidden layer neurons
      */
     fun computeErrorSignal() {
-        val sumOfWeightedErrors = outputConnections
-                .map(Connection::computeWeightedErrorSignal)
-                .sum()
-        errorSignal = sumOfWeightedErrors * computeOutputDerivative()
+        var sumOfWeightedErrors = 0.0
+        for (con in outputConnections) {
+            sumOfWeightedErrors += con.computeWeightedErrorSignal()
+        }
+        errorSignal = sumOfWeightedErrors * outputDerivative
     }
 
     /**
      * Computes error signal if the target value is available. This is typically used for the output layer neurons
      */
     fun computeErrorSignal(target: Double) {
-        errorSignal = (result - target) * computeOutputDerivative()
+        errorSignal = (result - target) * outputDerivative
     }
 
     private fun computeOutputDerivative(): Double {
@@ -73,7 +75,7 @@ class Neuron(
     }
 
     override fun toString(): String {
-        return "$name - bias: $bias"
+        return "Neuron $name, bias: $bias"
     }
 }
 
@@ -95,6 +97,13 @@ class Connection(
         private var weight: Double = RandomUtils.generateRandom(-1.0, 1.0)
 ) {
 
+    init {
+        output.addInputConnection(this)
+        if (input is Neuron) {
+            input.addOutputConnection(this)
+        }
+    }
+
     fun computeWeightedResult(): Double {
         return input.getValue() * weight
     }
@@ -109,22 +118,21 @@ class Connection(
     }
 
     override fun toString(): String {
-        return "Connection(input=$input, output=$output, weight=$weight)"
+        return "Connection $input => $output, weight=$weight)"
     }
 }
 
+class InputLayer(val inputs: Array<Input>)
 
-class InputLayer(val inputs: List<Input>)
+class HiddenLayer(val neurons: Array<Neuron>)
 
-class HiddenLayer(val neurons: Collection<Neuron>)
-
-class OutputLayer(val neurons: List<Neuron>)
+class OutputLayer(val neurons: Array<Neuron>)
 
 data class NeuralNetwork(
         var inputLayer: InputLayer,
         var outputLayer: OutputLayer,
-        var hiddenLayers: MutableList<HiddenLayer> = ArrayList(),
-        var connections: MutableCollection<Connection> = HashSet()
+        var hiddenLayers: Array<HiddenLayer> = emptyArray(),
+        var connections: Array<Connection> = emptyArray()
 ) {
     val inputs = inputLayer.inputs
     val outputs = outputLayer.neurons
@@ -136,13 +144,7 @@ data class NeuralNetwork(
     }
 
     fun connect(input: ConnectionInput, output: Neuron) {
-        val connection = Connection(input, output)
-
-        if (input is Neuron) {
-            input.addOutputConnection(connection)
-        }
-        output.addInputConnection(connection)
-        connections.add(connection)
+        connections = connections.plus(Connection(input, output))
     }
 
 

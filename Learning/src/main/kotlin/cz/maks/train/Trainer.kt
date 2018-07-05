@@ -40,12 +40,13 @@ class Trainer(
         ValidationUtils.validateBatchSize(trainSet, batchSize)
 
         repeat(epochs) {
-            println("Epoch-$it")
+            print("Epoch - $it ... ")
+            var batch = trainSet.extractSubset(batchSize)
             repeat(loops) {
-                val batch = trainSet.extractSubset(batchSize)
                 train(batch)
-                println(meanSquareError(batch))
+                batch = trainSet.extractSubset(batchSize)
             }
+            println("Mean Square Error: ${meanSquareError(batch)}")
         }
     }
 

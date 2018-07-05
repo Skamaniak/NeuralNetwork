@@ -16,22 +16,33 @@ fun main(args: Array<String>) {
             .addHiddenLayer(35)
             .build(10)
 
-    val trainSet = createTrainSet(0, 4999)
+    val trainSet = createTrainSet(0, 9999, DataSetType.TRAIN)
 
     val trainer = Trainer(network, 0.3)
     trainer.train(trainSet, 50, 50, 100)
 
-    val testSet = createTrainSet(5000, 9999)
+    val testSet = createTrainSet(0, 9999, DataSetType.TRAIN)
     testTrainSet(network, testSet, 10)
 }
 
+enum class DataSetType(val images: String, val labels: String) {
+    TRAIN(
+            "Mnist/src/main/resources/train/trainImage.idx3-ubyte",
+            "Mnist/src/main/resources/train/trainLabel.idx1-ubyte"
+    ),
+    TEST(
+            "Mnist/src/main/resources/test/t10k-images.idx3-ubyte",
+            "Mnist/src/main/resources/test/t10k-labels.idx1-ubyte"
+    )
+}
 
-fun createTrainSet(start: Int, end: Int): TrainSet {
+
+fun createTrainSet(start: Int, end: Int, type: DataSetType): TrainSet {
     val trainSet = TrainSet(28 * 28, 10)
 
     try {
-        val imageSet = MnistImageFile("Mnist/src/main/resources/train/trainImage.idx3-ubyte", "r")
-        val labelSet = MnistLabelFile("Mnist/src/main/resources/train/trainLabel.idx1-ubyte", "r")
+        val imageSet = MnistImageFile(type.images, "r")
+        val labelSet = MnistLabelFile(type.labels, "r")
 
         for (i in start..end) {
             if (i % 100 == 0) {

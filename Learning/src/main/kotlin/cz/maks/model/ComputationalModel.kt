@@ -5,6 +5,7 @@ import java.util.*
 
 interface ConnectionInput {
     fun getValue(): Double
+    fun getIdentifier(): String
 }
 
 object RandomUtils {
@@ -16,19 +17,19 @@ object RandomUtils {
 }
 
 class Neuron(
-        private val name: String = "unknown",
-        private val triggerFunction: TriggerFunction = TriggerFunction.SIGMOID,
-        private var inputConnections: Array<Connection> = emptyArray(),
-        private var outputConnections: Array<Connection> = emptyArray(),
+        val id: String = UUID.randomUUID().toString(),
+        val name: String = "unknown",
         var result: Double = 0.0,
         var errorSignal: Double = 0.0,
         var outputDerivative: Double = 0.0,
-        var bias: Double = RandomUtils.generateRandom(-0.5, 0.7)
+        var bias: Double = RandomUtils.generateRandom(-0.5, 0.7),
+        val triggerFunction: TriggerFunction = TriggerFunction.SIGMOID,
+        private var inputConnections: Array<Connection> = emptyArray(),
+        private var outputConnections: Array<Connection> = emptyArray()
 ) : ConnectionInput {
 
-    override fun getValue(): Double {
-        return result
-    }
+    override fun getValue(): Double = result
+    override fun getIdentifier(): String = id
 
     fun addInputConnection(connection: Connection) {
         inputConnections = inputConnections.plus(connection)
@@ -79,22 +80,24 @@ class Neuron(
     }
 }
 
-class Input(inputValue: Double = 0.0) : ConnectionInput {
+class Input(
+        val id: String = UUID.randomUUID().toString(),
+        inputValue: Double = 0.0
+) : ConnectionInput {
     var inputValue: Double = inputValue
         set(newVal) {
             ValidationUtils.validateInputValue(newVal)
             field = newVal
         }
 
-    override fun getValue(): Double {
-        return inputValue
-    }
+    override fun getValue(): Double = inputValue
+    override fun getIdentifier(): String = id
 }
 
 class Connection(
-        private val input: ConnectionInput,
-        private val output: Neuron,
-        private var weight: Double = RandomUtils.generateRandom(-1.0, 1.0)
+        val input: ConnectionInput,
+        val output: Neuron,
+        var weight: Double = RandomUtils.generateRandom(-1.0, 1.0)
 ) {
 
     init {
@@ -139,40 +142,50 @@ data class NeuralNetwork(
     val inputCount = inputs.size
     val outputCount = outputs.size
 
-    fun addHiddenLayer(neurons: Collection<Neuron>) {
-        hiddenLayers.add(HiddenLayer(neurons))
+    fun addHiddenLayer(neurons: Array<Neuron>) {
+        hiddenLayers = hiddenLayers.plus(HiddenLayer(neurons))
+    }
+
+    fun connect(con: Connection) {
+        connections = connections.plus(con)
     }
 
     fun connect(input: ConnectionInput, output: Neuron) {
-        connections = connections.plus(Connection(input, output))
+        connect(Connection(input, output))
     }
 
-
-    fun setInputs(inputValues: List<Double>) {
+    fun setInputs(inputValues: DoubleArray) {
         ValidationUtils.validateInputValues(inputValues, this)
         for (ind in 0 until inputValues.size) {
             inputLayer.inputs[ind].inputValue = inputValues[ind]
         }
     }
 
-    fun extractOutputs(): List<Double> {
-        return outputLayer.neurons
-                .map(Neuron::result)
+    fun extractResults(): DoubleArray {
+        val results = DoubleArray(outputCount)
+        for (ind in 0 until outputCount) {
+            results[ind] = outputs[ind].result
+        }
+
+        return results
     }
 
     fun evaluate() {
-        hiddenLayers
-                .flatMap(HiddenLayer::neurons)
-                .forEach(Neuron::computeOutput)
+        for (hiddenLayer in hiddenLayers) {
+            for (hiddenNeuron in hiddenLayer.neurons) {
+                hiddenNeuron.computeOutput()
+            }
+        }
 
-        outputLayer.neurons
-                .forEach(Neuron::computeOutput)
+        for (ind in 0 until outputCount) {
+            outputs[ind].computeOutput()
+        }
     }
 
-    fun evaluate(inputValues: List<Double>): List<Double> {
+    fun evaluate(inputValues: DoubleArray): DoubleArray {
         setInputs(inputValues)
         evaluate()
-        return extractOutputs()
+        return extractResults()
     }
 
 

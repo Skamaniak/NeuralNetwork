@@ -2,6 +2,7 @@ package cz.maks
 
 import cz.maks.model.DenseNetworkBuilder
 import cz.maks.model.TriggerFunction
+import cz.maks.persistence.FilePersistence
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet
 import cz.maks.train.Trainer

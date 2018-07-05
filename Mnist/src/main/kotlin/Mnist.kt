@@ -3,6 +3,7 @@ import cz.maks.data.MnistLabelFile
 import cz.maks.model.DenseNetworkBuilder
 import cz.maks.model.NeuralNetwork
 import cz.maks.model.TriggerFunction
+import cz.maks.persistence.FilePersistence
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet
 import cz.maks.train.Trainer
@@ -16,7 +17,7 @@ fun main(args: Array<String>) {
             .addHiddenLayer(35)
             .build(10)
 
-    val trainSet = createTrainSet(0, 9999, DataSetType.TRAIN)
+    val trainSet = createTrainSet(0, 29999, DataSetType.TRAIN)
 
     val trainer = Trainer(network, 0.3)
     trainer.train(trainSet, 50, 50, 100)
@@ -25,13 +26,13 @@ fun main(args: Array<String>) {
     testTrainSet(network, testSet, 10)
 }
 
-enum class DataSetType(val images: String, val labels: String) {
+enum class DataSetType(val imageFilePath: String, val labelFilePath: String) {
     TRAIN(
             "Mnist/src/main/resources/train/trainImage.idx3-ubyte",
             "Mnist/src/main/resources/train/trainLabel.idx1-ubyte"
     ),
     TEST(
-            "Mnist/src/main/resources/test/t10k-images.idx3-ubyte",
+            "Mnist/src/main/resources/test/t10k-mages.idx3-ubyte",
             "Mnist/src/main/resources/test/t10k-labels.idx1-ubyte"
     )
 }
@@ -41,8 +42,8 @@ fun createTrainSet(start: Int, end: Int, type: DataSetType): TrainSet {
     val trainSet = TrainSet(28 * 28, 10)
 
     try {
-        val imageSet = MnistImageFile(type.images, "r")
-        val labelSet = MnistLabelFile(type.labels, "r")
+        val imageSet = MnistImageFile(type.imageFilePath, "r")
+        val labelSet = MnistLabelFile(type.labelFilePath, "r")
 
         for (i in start..end) {
             if (i % 100 == 0) {

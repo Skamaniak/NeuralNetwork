@@ -2,7 +2,7 @@ import cz.maks.data.MnistImageFile
 import cz.maks.data.MnistLabelFile
 import cz.maks.model.DenseNetworkBuilder
 import cz.maks.model.NeuralNetwork
-import cz.maks.model.TriggerFunction
+import cz.maks.model.ActivationFunction
 import cz.maks.persistence.FilePersistence
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet
@@ -13,7 +13,18 @@ import kotlin.system.measureTimeMillis
  * Created by Jan Skrabal skrabalja@gmail.com
  */
 fun main(args: Array<String>) {
-    val network = DenseNetworkBuilder(28 * 28, TriggerFunction.SIGMOID)
+    val network = train()
+//    val network = FilePersistence.load("mnist_longterm-31.zip")
+    test(network)
+}
+
+private fun test(network: NeuralNetwork) {
+    val testSet = createTrainSet(0, 9999, DataSetType.TRAIN)
+    testTrainSet(network, testSet, 10)
+}
+
+private fun train(): NeuralNetwork {
+    val network = DenseNetworkBuilder(28 * 28, ActivationFunction.SIGMOID)
             .addHiddenLayer(70)
             .addHiddenLayer(35)
             .build(10)
@@ -22,14 +33,18 @@ fun main(args: Array<String>) {
 
     val took = measureTimeMillis {
         val trainer = Trainer(network, 0.3)
-        trainer.train(trainSet, 500, 100, 100)
+        trainer.train(
+                trainSet = trainSet,
+                batchSize = 400,
+                loops = 100,
+                epochs = 50,
+                epochListener = {
+                    println("Saving")
+                    FilePersistence.store(network, "mnist_longterm-$it.zip")
+                })
     }
     println("Took: $took ms")
-    FilePersistence.store(network, "test")
-//
-//    val network = FilePersistence.load("test")
-    val testSet = createTrainSet(0, 9999, DataSetType.TRAIN)
-    testTrainSet(network, testSet, 10)
+    return network
 }
 
 enum class DataSetType(val imageFilePath: String, val labelFilePath: String) {

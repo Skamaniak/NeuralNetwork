@@ -6,7 +6,7 @@ package cz.maks.model
 
 class DenseNetworkBuilder(
         private val inputCount: Int,
-        private val triggerFunction: TriggerFunction,
+        private val activationFunction: ActivationFunction,
         private val hiddenLayerNeurons: MutableList<Int> = ArrayList()
 ) {
     companion object {
@@ -18,22 +18,22 @@ class DenseNetworkBuilder(
             return inputs.toTypedArray()
         }
 
-        fun generateOutputs(outputCount: Int, triggerFunction: TriggerFunction): Array<Neuron> {
+        fun generateOutputs(outputCount: Int, activationFunction: ActivationFunction): Array<Neuron> {
             val outputs = ArrayList<Neuron>()
             for (i in 0 until outputCount) {
                 outputs.add(Neuron(
-                        triggerFunction = triggerFunction,
+                        activationFunction = activationFunction,
                         name = "output$i"
                 ))
             }
             return outputs.toTypedArray()
         }
 
-        fun generateHiddenNeurons(outputCount: Int, order: Int, triggerFunction: TriggerFunction): Array<Neuron> {
+        fun generateHiddenNeurons(outputCount: Int, order: Int, activationFunction: ActivationFunction): Array<Neuron> {
             val neurons = ArrayList<Neuron>()
             for (i in 0 until outputCount) {
                 neurons.add(Neuron(
-                        triggerFunction = triggerFunction,
+                        activationFunction = activationFunction,
                         name = "hidden $order-$i"
                 ))
             }
@@ -77,11 +77,11 @@ class DenseNetworkBuilder(
 
     private fun generateNetwork(outputCount: Int): NeuralNetwork {
         val inputLayer = InputLayer(generateInputs(inputCount))
-        val outputLayer = OutputLayer(generateOutputs(outputCount, triggerFunction))
+        val outputLayer = OutputLayer(generateOutputs(outputCount, activationFunction))
         val network = NeuralNetwork(inputLayer, outputLayer)
 
         for (ind in 0 until hiddenLayerNeurons.size) {
-            val hiddenLayer = generateHiddenNeurons(hiddenLayerNeurons[ind], ind, triggerFunction)
+            val hiddenLayer = generateHiddenNeurons(hiddenLayerNeurons[ind], ind, activationFunction)
             network.addHiddenLayer(hiddenLayer)
         }
 

@@ -2,6 +2,7 @@ package cz.maks.train
 
 import cz.maks.model.NeuralNetwork
 import cz.maks.util.ValidationUtils
+import org.apache.logging.log4j.LogManager
 
 /**
  * Created by Jan Skrabal skrabalja@gmail.com
@@ -17,6 +18,10 @@ class Trainer(
 
     private val reversedHiddenNeurons = hiddenNeurons
             .reversed()
+
+    companion object {
+        private val LOGGER = LogManager.getLogger(Trainer::class.java)
+    }
 
     fun train(inputValues: DoubleArray, targets: DoubleArray, learningRate: Double) {
         network.evaluate(inputValues)
@@ -41,18 +46,18 @@ class Trainer(
         repeat(loops) { train(trainSet) }
     }
 
-    fun train(trainSet: TrainSet, batchSize: Int, loops: Int = 1, epochs: Int = 1) {
+    fun train(trainSet: TrainSet, batchSize: Int, loops: Int = 1, epochs: Int = 1, epochListener: (Int) -> Unit = {}) {
         ValidationUtils.validateLoopCount(loops)
         ValidationUtils.validateBatchSize(trainSet, batchSize)
 
         repeat(epochs) {
-            print("Epoch - $it ... ")
+            epochListener(it)
             var batch = trainSet.extractSubset(batchSize)
             repeat(loops) {
                 train(batch)
                 batch = trainSet.extractSubset(batchSize)
             }
-            println("Mean Square Error: ${meanSquareError(batch)}")
+            LOGGER.info("Epoch - $it finished, Mean Square Error: ${meanSquareError(batch)}")
         }
     }
 
@@ -109,7 +114,6 @@ class Trainer(
             connection.adjustWeight(learningRate)
         }
     }
-
 
     private fun validateTargets(targets: DoubleArray) {
         val targetsCount = targets.size

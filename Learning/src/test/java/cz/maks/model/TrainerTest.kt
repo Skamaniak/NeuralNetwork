@@ -15,7 +15,7 @@ class TrainerTest {
     @DisplayName("Train XOR")
     @Test
     fun testTrainDenseNeuralNetworkToXor() {
-        val neuralNetwork = DenseNetworkBuilder(2, TriggerFunction.SIGMOID)
+        val neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.SIGMOID)
                 .addHiddenLayer(3)
                 .addHiddenLayer(3)
                 .addHiddenLayer(3)
@@ -29,8 +29,6 @@ class TrainerTest {
 
         val trainer = Trainer(neuralNetwork)
         trainer.train(trainSet, 2, 1000, 100)
-
-        neuralNetwork.connections.forEach { println(it)}
 
         Assertions.assertThat(neuralNetwork.evaluate(doubleArrayOf(0.0, 0.0))[0])
                 .isBetween(0.0, 0.05)

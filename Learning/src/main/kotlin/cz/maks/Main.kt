@@ -1,7 +1,7 @@
 package cz.maks
 
 import cz.maks.model.DenseNetworkBuilder
-import cz.maks.model.TriggerFunction
+import cz.maks.model.ActivationFunction
 import cz.maks.persistence.FilePersistence
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet
@@ -12,7 +12,7 @@ import java.util.*
  * Created by Jan Skrabal skrabalja@gmail.com
  */
 fun main(args: Array<String>) {
-    var neuralNetwork = DenseNetworkBuilder(2,TriggerFunction.SIGMOID)
+    var neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.SIGMOID)
             .addHiddenLayer(3)
             .build(1)
 

@@ -11,7 +11,7 @@ import java.util.*
 data class NeuronDefinition(
         val id: String = UUID.randomUUID().toString(),
         val name: String = "unknown",
-        val triggerFunction: TriggerFunction = TriggerFunction.SIGMOID,
+        val activationFunction: ActivationFunction = ActivationFunction.SIGMOID,
         val bias: Double = 0.0
 )
 
@@ -57,7 +57,7 @@ object SerialisationModel {
         return NeuronDefinition(
                 id = neuron.id,
                 name = neuron.name,
-                triggerFunction = neuron.triggerFunction,
+                activationFunction = neuron.activationFunction,
                 bias = neuron.bias)
     }
 
@@ -141,7 +141,7 @@ object SerialisationModel {
                 id = neuron.id,
                 name = neuron.name,
                 bias = neuron.bias,
-                triggerFunction = neuron.triggerFunction
+                activationFunction = neuron.activationFunction
         )
     }
 

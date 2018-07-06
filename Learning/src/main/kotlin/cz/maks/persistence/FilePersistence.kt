@@ -5,6 +5,7 @@ import cz.maks.ex.MalformedNetworkArchiveException
 import cz.maks.model.NeuralNetwork
 import cz.maks.model.NeuralNetworkDefinition
 import cz.maks.model.SerialisationModel
+import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipEntry
@@ -16,6 +17,7 @@ import java.util.zip.ZipOutputStream
  */
 
 object FilePersistence {
+    private val LOGGER = LogManager.getLogger(javaClass)
     private val MAPPER = ObjectMapper()
     private val ENTRY_NAME = "network.json"
 
@@ -24,6 +26,7 @@ object FilePersistence {
     }
 
     fun store(network: NeuralNetwork, file: File) {
+        LOGGER.info("Storing network to file $file")
         val model = SerialisationModel.fromComputationalModel(network)
         val json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(model)
         file.writeText(json)
@@ -36,6 +39,7 @@ object FilePersistence {
                 }
             }
         }
+        LOGGER.info("Storing finished")
     }
 
     fun load(path: String): NeuralNetwork {
@@ -43,6 +47,7 @@ object FilePersistence {
     }
 
     fun load(file: File): NeuralNetwork {
+        LOGGER.info("Loading network from file $file")
         val json = file.inputStream().use {
             ZipInputStream(it, StandardCharsets.UTF_8). use{
                 val found = seekNetworkEntry(it)
@@ -53,7 +58,9 @@ object FilePersistence {
             }
         }
         val model = MAPPER.readValue(json, NeuralNetworkDefinition::class.java)
-        return SerialisationModel.toComputationalModel(model)
+        val network = SerialisationModel.toComputationalModel(model)
+        LOGGER.info("Loading finished")
+        return network
     }
 
     private fun seekNetworkEntry(stream: ZipInputStream): Boolean {

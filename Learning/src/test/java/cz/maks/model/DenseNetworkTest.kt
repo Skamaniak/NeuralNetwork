@@ -12,7 +12,7 @@ class DenseNetworkTest {
     @DisplayName("Simple network is able to learn XOR")
     @Test
     fun testTrainDenseNeuralNetworkToXor() {
-        val neuralNetwork = DenseNetworkBuilder(2, TriggerFunction.SIGMOID)
+        val neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.SIGMOID)
                 .addHiddenLayer(3)
                 .build(1)
 

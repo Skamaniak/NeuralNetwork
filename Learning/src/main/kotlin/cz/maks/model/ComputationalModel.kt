@@ -23,7 +23,7 @@ class Neuron(
         var errorSignal: Double = 0.0,
         var outputDerivative: Double = 0.0,
         var bias: Double = RandomUtils.generateRandom(-0.5, 0.7),
-        val triggerFunction: TriggerFunction = TriggerFunction.SIGMOID,
+        val activationFunction: ActivationFunction = ActivationFunction.SIGMOID,
         private var inputConnections: Array<Connection> = emptyArray(),
         private var outputConnections: Array<Connection> = emptyArray()
 ) : ConnectionInput {
@@ -44,7 +44,7 @@ class Neuron(
         for (con in inputConnections) {
             summedInputs += con.computeWeightedResult()
         }
-        result = triggerFunction.apply(summedInputs + bias)
+        result = activationFunction.apply(summedInputs + bias)
         outputDerivative = computeOutputDerivative()
     }
 

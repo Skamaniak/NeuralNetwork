@@ -1,5 +1,6 @@
 package cz.maks.model
 
+import cz.maks.strategies.ActivationFunction
 import cz.maks.util.ValidationUtils
 import java.util.*
 

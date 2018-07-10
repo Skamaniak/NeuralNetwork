@@ -12,7 +12,7 @@ import java.util.*
  * Created by Jan Skrabal skrabalja@gmail.com
  */
 fun main(args: Array<String>) {
-    var neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.SIGMOID)
+    var neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.TANH)
             .addHiddenLayer(3)
             .build(1)
 

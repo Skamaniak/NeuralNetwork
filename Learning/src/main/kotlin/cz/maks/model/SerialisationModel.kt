@@ -1,6 +1,7 @@
 package cz.maks.model
 
 import cz.maks.ex.MalformedNetworkException
+import cz.maks.strategies.ActivationFunction
 import java.util.*
 
 /**

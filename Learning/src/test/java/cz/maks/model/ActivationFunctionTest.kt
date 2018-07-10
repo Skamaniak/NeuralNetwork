@@ -1,5 +1,6 @@
 package cz.maks.model
 
+import cz.maks.strategies.ActivationFunction
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
@@ -25,7 +26,9 @@ class ActivationFunctionTest {
     @ParameterizedTest(name = "function should return ''{1}'' for input ''{0}''")
     @CsvSource(
             Int.MIN_VALUE.toString() + ", -1",
+            "-0.5, -0.46211715726000974",
             "0, 0",
+            "0.5, 0.46211715726000974",
             Int.MAX_VALUE.toString() + ", 1"
 
     )

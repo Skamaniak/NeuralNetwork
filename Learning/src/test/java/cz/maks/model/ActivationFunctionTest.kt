@@ -50,26 +50,9 @@ class ActivationFunctionTest {
 
     )
     fun testReLuImplementation(input: Double, expected: Double) {
-        assertThat(ActivationFunction.RELU.apply(input))
+        assertThat(ActivationFunction.RECTIFIED_LINEAR_UNIT.apply(input))
                 .isEqualTo(expected)
     }
 
-    @DisplayName("Leaky ReLu function should return correct values")
-    @ParameterizedTest(name = "function should return ''{1}'' for input ''{0}''")
-    @CsvSource(
-            "-10, -0.1",
-            "-5, -0.05",
-            "-0.5, -0.005",
-            "0, 0",
-            "0.5, 0.5",
-            "5, 5",
-            "10, 10",
-            Int.MAX_VALUE.toString() + "," + Int.MAX_VALUE.toString()
-
-    )
-    fun testLeakyReLuImplementation(input: Double, expected: Double) {
-        assertThat(ActivationFunction.LEAKY_RELU.apply(input))
-                .isEqualTo(expected)
-    }
 
 }

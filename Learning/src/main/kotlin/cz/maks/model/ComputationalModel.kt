@@ -132,7 +132,7 @@ class HiddenLayer(val neurons: Array<Neuron>)
 
 class OutputLayer(val neurons: Array<Neuron>)
 
-data class NeuralNetwork(
+class NeuralNetwork(
         var inputLayer: InputLayer,
         var outputLayer: OutputLayer,
         var hiddenLayers: Array<HiddenLayer> = emptyArray(),

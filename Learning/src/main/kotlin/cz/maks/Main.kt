@@ -1,7 +1,7 @@
 package cz.maks
 
-import cz.maks.model.DenseNetworkBuilder
-import cz.maks.model.ActivationFunction
+import cz.maks.builder.DenseNetworkBuilder
+import cz.maks.strategies.ActivationFunction
 import cz.maks.persistence.FilePersistence
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet

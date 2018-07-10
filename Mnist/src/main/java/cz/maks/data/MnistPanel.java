@@ -70,8 +70,8 @@ public class MnistPanel extends JPanel {
 
     public static void main(String[] args) throws FileNotFoundException, IOException, InterruptedException {
 
-        MnistImageFile m = new MnistImageFile("Mnist/src/main/resources/train/trainImage.idx3-ubyte", "r");
-        MnistLabelFile l = new MnistLabelFile("Mnist/src/main/resources/train/trainLabel.idx1-ubyte", "r");
+        MnistImageFile m = new MnistImageFile("Mnist/src/cz.maks.main/resources/train/emnist-letters-train-images-idx3-ubyte", "r");
+        MnistLabelFile l = new MnistLabelFile("Mnist/src/cz.maks.main/resources/train/emnist-letters-train-labels-idx1-ubyte ", "r");
 
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

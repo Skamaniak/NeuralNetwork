@@ -1,5 +1,7 @@
 package cz.maks.model
 
+import cz.maks.builder.DenseNetworkBuilder
+import cz.maks.strategies.ActivationFunction
 import cz.maks.train.TrainSet
 import cz.maks.train.Trainer
 import org.assertj.core.api.Assertions

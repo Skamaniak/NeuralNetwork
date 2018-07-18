@@ -1,6 +1,8 @@
 package cz.maks.model
 
 import cz.maks.builder.DenseNetworkBuilder
+import cz.maks.evaluate
+import cz.maks.strategies.Activation
 import cz.maks.strategies.ActivationFunction
 import cz.maks.train.TrainSet
 import cz.maks.train.Trainer
@@ -17,7 +19,7 @@ class TrainerTest {
     @DisplayName("Train XOR")
     @Test
     fun testTrainDenseNeuralNetworkToXor() {
-        val neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.SIGMOID)
+        val neuralNetwork = DenseNetworkBuilder(2, Activation.sigmoid())
                 .addHiddenLayer(3)
                 .addHiddenLayer(3)
                 .addHiddenLayer(3)

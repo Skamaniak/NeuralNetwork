@@ -1,7 +1,8 @@
 package cz.maks.builder
 
+import cz.maks.init
 import cz.maks.model.*
-import cz.maks.strategies.ActivationFunction
+import cz.maks.strategies.*
 
 /**
  * Created by Jan Skrabal skrabalja@gmail.com
@@ -10,7 +11,10 @@ import cz.maks.strategies.ActivationFunction
 class DenseNetworkBuilder(
         private val inputCount: Int,
         private val activationFunction: ActivationFunction,
-        private val hiddenLayerNeurons: MutableList<Int> = ArrayList()
+        private val hiddenLayerNeurons: MutableList<Int> = ArrayList(),
+        private var lossFunction: LossFunction = Loss.difference(),
+        private var weightInitialisationFunction: WeightInitialisationFunction = WeightInitialisation.xavierNormal(),
+        private var biasInitialisationFunction: BiasInitialisationFunction = BiasInitialisation.zeros()
 ) {
     companion object {
         private fun generateInputs(inputCount: Int): Array<Input> {
@@ -59,6 +63,21 @@ class DenseNetworkBuilder(
         return this
     }
 
+    fun lossFunction(lossFunction: LossFunction): DenseNetworkBuilder {
+        this.lossFunction = lossFunction
+        return this
+    }
+
+    fun biasInitializationFunction(biasInitialisationFunction: BiasInitialisationFunction): DenseNetworkBuilder {
+        this.biasInitialisationFunction = biasInitialisationFunction
+        return this
+    }
+
+    fun weightInitialisationFunction(weightInitialisationFunction: WeightInitialisationFunction): DenseNetworkBuilder {
+        this.weightInitialisationFunction = weightInitialisationFunction
+        return this
+    }
+
     fun build(outputCount: Int): NeuralNetwork {
         val network = generateNetwork(outputCount)
 
@@ -75,13 +94,20 @@ class DenseNetworkBuilder(
         }
 
         network.wireUp(network.inputLayer.inputs, neurons[0])
+        network.init()
         return network
     }
 
     private fun generateNetwork(outputCount: Int): NeuralNetwork {
         val inputLayer = InputLayer(generateInputs(inputCount))
         val outputLayer = OutputLayer(generateOutputs(outputCount, activationFunction))
-        val network = NeuralNetwork(inputLayer, outputLayer)
+        val network = NeuralNetwork(
+                inputLayer = inputLayer,
+                outputLayer = outputLayer,
+                lossFunction = lossFunction,
+                weightInitialisationFunction = weightInitialisationFunction,
+                biasInitialisationFunction = biasInitialisationFunction
+        )
 
         for (ind in 0 until hiddenLayerNeurons.size) {
             val hiddenLayer = generateHiddenNeurons(hiddenLayerNeurons[ind], ind, activationFunction)

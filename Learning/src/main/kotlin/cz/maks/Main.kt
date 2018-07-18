@@ -1,8 +1,8 @@
 package cz.maks
 
 import cz.maks.builder.DenseNetworkBuilder
-import cz.maks.strategies.ActivationFunction
 import cz.maks.persistence.FilePersistence
+import cz.maks.strategies.*
 import cz.maks.train.DataValue
 import cz.maks.train.TrainSet
 import cz.maks.train.Trainer
@@ -12,8 +12,11 @@ import java.util.*
  * Created by Jan Skrabal skrabalja@gmail.com
  */
 fun main(args: Array<String>) {
-    var neuralNetwork = DenseNetworkBuilder(2, ActivationFunction.TANH)
+    var neuralNetwork = DenseNetworkBuilder(2, Activation.tanh())
             .addHiddenLayer(3)
+            .biasInitializationFunction(BiasInitialisation.random(-0.1, 0.1))
+            .weightInitialisationFunction(WeightInitialisation.random(-0.1, 0.1))
+            .lossFunction(Loss.difference())
             .build(1)
 
     val trainSet = TrainSet(2, 1)

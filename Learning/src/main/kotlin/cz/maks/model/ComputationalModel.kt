@@ -1,7 +1,12 @@
 package cz.maks.model
 
-import cz.maks.strategies.ActivationFunction
+import cz.maks.computeOutput
+import cz.maks.evaluate
+import cz.maks.extractResults
+import cz.maks.setInputs
+import cz.maks.strategies.*
 import cz.maks.util.ValidationUtils
+import org.apache.logging.log4j.core.util.NetUtils
 import java.util.*
 
 interface ConnectionInput {
@@ -9,13 +14,6 @@ interface ConnectionInput {
     fun getIdentifier(): String
 }
 
-object RandomUtils {
-    private val RANDOM = Random()
-
-    fun generateRandom(lower: Double, upper: Double): Double {
-        return RANDOM.nextDouble() * (upper - lower) + lower
-    }
-}
 
 class Neuron(
         val id: String = UUID.randomUUID().toString(),
@@ -24,9 +22,9 @@ class Neuron(
         var errorSignal: Double = 0.0,
         var outputDerivative: Double = 0.0,
         var bias: Double = RandomUtils.generateRandom(-0.5, 0.7),
-        val activationFunction: ActivationFunction = ActivationFunction.SIGMOID,
-        private var inputConnections: Array<Connection> = emptyArray(),
-        private var outputConnections: Array<Connection> = emptyArray()
+        val activationFunction: ActivationFunction = Activation.sigmoid(),
+        var inputConnections: Array<Connection> = emptyArray(),
+        var outputConnections: Array<Connection> = emptyArray()
 ) : ConnectionInput {
 
     override fun getValue(): Double = result
@@ -38,42 +36,6 @@ class Neuron(
 
     fun addOutputConnection(connection: Connection) {
         outputConnections = outputConnections.plus(connection)
-    }
-
-    fun computeOutput() {
-        var summedInputs = 0.0
-        for (con in inputConnections) {
-            summedInputs += con.computeWeightedResult()
-        }
-        result = activationFunction.apply(summedInputs + bias)
-        outputDerivative = computeOutputDerivative()
-    }
-
-    fun adjustBias(learningRate: Double) {
-        val delta = -learningRate * errorSignal
-        bias += delta
-    }
-
-    /**
-     * Computes error signal if the target value is not available. This is typically used for the hidden layer neurons
-     */
-    fun computeErrorSignal() {
-        var sumOfWeightedErrors = 0.0
-        for (con in outputConnections) {
-            sumOfWeightedErrors += con.computeWeightedErrorSignal()
-        }
-        errorSignal = sumOfWeightedErrors * outputDerivative
-    }
-
-    /**
-     * Computes error signal if the target value is available. This is typically used for the output layer neurons
-     */
-    fun computeErrorSignal(target: Double) {
-        errorSignal = (result - target) * outputDerivative
-    }
-
-    private fun computeOutputDerivative(): Double {
-        return result * (1 - result)
     }
 
     override fun toString(): String {
@@ -108,19 +70,6 @@ class Connection(
         }
     }
 
-    fun computeWeightedResult(): Double {
-        return input.getValue() * weight
-    }
-
-    fun computeWeightedErrorSignal(): Double {
-        return output.errorSignal * weight
-    }
-
-    fun adjustWeight(learningRate: Double) {
-        val delta = -learningRate * input.getValue() * output.errorSignal
-        weight += delta
-    }
-
     override fun toString(): String {
         return "Connection $input => $output, weight=$weight)"
     }
@@ -136,7 +85,10 @@ class NeuralNetwork(
         var inputLayer: InputLayer,
         var outputLayer: OutputLayer,
         var hiddenLayers: Array<HiddenLayer> = emptyArray(),
-        var connections: Array<Connection> = emptyArray()
+        var connections: Array<Connection> = emptyArray(),
+        var weightInitialisationFunction: WeightInitialisationFunction = WeightInitialisation.xavierNormal(),
+        var biasInitialisationFunction: BiasInitialisationFunction = BiasInitialisation.zeros(),
+        var lossFunction: LossFunction = Loss.difference()
 ) {
     val inputs = inputLayer.inputs
     val outputs = outputLayer.neurons
@@ -155,39 +107,9 @@ class NeuralNetwork(
         connect(Connection(input, output))
     }
 
-    fun setInputs(inputValues: DoubleArray) {
-        ValidationUtils.validateInputValues(inputValues, this)
-        for (ind in 0 until inputValues.size) {
-            inputLayer.inputs[ind].inputValue = inputValues[ind]
-        }
-    }
-
-    fun extractResults(): DoubleArray {
-        val results = DoubleArray(outputCount)
-        for (ind in 0 until outputCount) {
-            results[ind] = outputs[ind].result
-        }
-
-        return results
-    }
-
-    fun evaluate() {
-        for (hiddenLayer in hiddenLayers) {
-            for (hiddenNeuron in hiddenLayer.neurons) {
-                hiddenNeuron.computeOutput()
-            }
-        }
-
-        for (ind in 0 until outputCount) {
-            outputs[ind].computeOutput()
-        }
-    }
-
     fun evaluate(inputValues: DoubleArray): DoubleArray {
         setInputs(inputValues)
         evaluate()
         return extractResults()
     }
-
-
 }

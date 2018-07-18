@@ -33,9 +33,10 @@ public class DrawNumber extends Application {
     private static final int HEIGHT = 560;
     private static final int FRAME_DISTANCE_HEIGHT = 75;
     private static final int FRAME_DISTANCE_WIDTH = 100;
-    private static final NeuralNetwork NETWORK = FilePersistence.INSTANCE.load("Digits#784-112-56-10#e65-s96,80.zip");
-    private static final int NUMBER_ASCII_SHIFT = 48;
-    private static final int LETTER_ASCII_SHIFT = 65;
+    private static final NeuralNetwork NETWORK = FilePersistence.INSTANCE.load("Letters#784-150-75-26#e61-s88,36.zip");
+    public static final int NUMBER_ASCII_SHIFT = 48;
+    public static final int LETTER_ASCII_SHIFT = 65;
+    public static final int ASCII_SHIFT = LETTER_ASCII_SHIFT;
 
     private double currentX;
     private double currentY;
@@ -108,7 +109,7 @@ public class DrawNumber extends Application {
 
         canvas.snapshot(parameters, image);
         int recognizedNumber = askNetwork(image);
-        char ascii = (char) (recognizedNumber + NUMBER_ASCII_SHIFT);
+        char ascii = (char) (recognizedNumber + ASCII_SHIFT);
         resultLabel.setText(String.valueOf(ascii));
     }
 
@@ -130,7 +131,10 @@ public class DrawNumber extends Application {
     private void logNNResult(double[] result) {
         System.out.println();
         for (int i = 0; i < result.length; i++) {
-            System.out.printf(i + " -> %.2f\n",  result[i]);
+            if (i % 2 == 0) {
+                System.out.println();
+            }
+            System.out.printf((char) (i + ASCII_SHIFT) + " -> %.2f\t",  result[i]);
         }
     }
 

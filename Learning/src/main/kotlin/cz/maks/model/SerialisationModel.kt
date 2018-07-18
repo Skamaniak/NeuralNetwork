@@ -1,7 +1,7 @@
 package cz.maks.model
 
 import cz.maks.ex.MalformedNetworkException
-import cz.maks.strategies.ActivationFunction
+import cz.maks.strategies.*
 import java.util.*
 
 /**
@@ -12,7 +12,7 @@ import java.util.*
 data class NeuronDefinition(
         val id: String = UUID.randomUUID().toString(),
         val name: String = "unknown",
-        val activationFunction: ActivationFunction = ActivationFunction.SIGMOID,
+        val activationFunction: ActivationFunction = Activation.sigmoid(),
         val bias: Double = 0.0
 )
 
@@ -32,7 +32,10 @@ data class NeuralNetworkDefinition(
         val inputLayer: InputLayerDefinition = InputLayerDefinition(),
         val hiddenLayers: List<HiddenLayerDefinition> = emptyList(),
         val outputLayer: OutputLayerDefinition = OutputLayerDefinition(),
-        val connections: Collection<ConnectionDefinition> = emptySet()
+        val connections: Collection<ConnectionDefinition> = emptySet(),
+        val weightInitialisationFunction: WeightInitialisationFunction = WeightInitialisation.xavierNormal(),
+        val biasInitialisationFunction: BiasInitialisationFunction = BiasInitialisation.zeros(),
+        val lossFunction: LossFunction = Loss.difference()
 )
 
 object SerialisationModel {
@@ -46,7 +49,10 @@ object SerialisationModel {
                 inputLayer = inputLayerDefinition,
                 hiddenLayers = hiddenLayersDefinition,
                 outputLayer = outputLayerDefinition,
-                connections = connections
+                connections = connections,
+                lossFunction = network.lossFunction,
+                biasInitialisationFunction = network.biasInitialisationFunction,
+                weightInitialisationFunction = network.weightInitialisationFunction
         )
     }
 
@@ -96,7 +102,10 @@ object SerialisationModel {
         val result = NeuralNetwork(
                 inputLayer = inputLayer,
                 hiddenLayers = hiddenLayers.toTypedArray(),
-                outputLayer = outputLayer
+                outputLayer = outputLayer,
+                lossFunction = network.lossFunction,
+                biasInitialisationFunction = network.biasInitialisationFunction,
+                weightInitialisationFunction = network.weightInitialisationFunction
         )
 
         val idToInput = inputLayer.inputs

@@ -57,7 +57,7 @@ public class MnistPanel extends JPanel {
         g.clearRect(0, 0, w, h);
         for (int i = 0; i < 784; i++) {
             int x = (i % 28) * w / 28;
-            int y = ((int) i / (int) 28) * h / 28;
+            int y = (i / 28) * h / 28;
             g2d.setColor(new Color(image_buffer[i]));
             g2d.fillRect(x, y, w / 28 + 1, h / 28 + 1);
         }
@@ -65,13 +65,13 @@ public class MnistPanel extends JPanel {
         g2d.setComposite(comp);
         g2d.setPaint(Color.red);
         g2d.setFont(new Font("Times Roman", Font.PLAIN, h));
-        g2d.drawString("" + label_buffer, h / 2, w / 2);
+        g2d.drawString("" + (char) (label_buffer + DrawNumber.NUMBER_ASCII_SHIFT), h / 2, w / 2);
     }
 
     public static void main(String[] args) throws FileNotFoundException, IOException, InterruptedException {
 
-        MnistImageFile m = new MnistImageFile("Mnist/src/cz.maks.main/resources/train/emnist-letters-train-images-idx3-ubyte", "r");
-        MnistLabelFile l = new MnistLabelFile("Mnist/src/cz.maks.main/resources/train/emnist-letters-train-labels-idx1-ubyte ", "r");
+        MnistImageFile m = new MnistImageFile("Mnist/src/main/resources/train/trainImage.idx3-ubyte", "r");
+        MnistLabelFile l = new MnistLabelFile("Mnist/src/main/resources/train/trainLabel.idx1-ubyte", "r");
 
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -89,7 +89,7 @@ public class MnistPanel extends JPanel {
         f.setVisible(true);
 
         for (int i = 0; i < 4000; i++) {
-            Thread.sleep(500);
+            Thread.sleep(1500);
             p.nextImage();
             f.repaint();
         }

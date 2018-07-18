@@ -1,5 +1,9 @@
 package cz.maks.train
 
+import cz.maks.adjustBias
+import cz.maks.adjustWeight
+import cz.maks.computeErrorSignal
+import cz.maks.evaluate
 import cz.maks.model.NeuralNetwork
 import cz.maks.util.ValidationUtils
 import org.apache.logging.log4j.LogManager
@@ -13,7 +17,7 @@ class Trainer(
 ) {
 
     private val hiddenNeurons = network.hiddenLayers
-            .flatMap {it.neurons.toList()}
+            .flatMap { it.neurons.toList() }
             .toTypedArray()
 
     private val reversedHiddenNeurons = hiddenNeurons
@@ -93,7 +97,7 @@ class Trainer(
 
         for (ind in 0 until targets.size) {
             val outputNeuron = network.outputLayer.neurons[ind]
-            outputNeuron.computeErrorSignal(targets[ind])
+            outputNeuron.computeErrorSignal(targets[ind], network.lossFunction)
         }
 
         for (hiddenNeuron in reversedHiddenNeurons) {

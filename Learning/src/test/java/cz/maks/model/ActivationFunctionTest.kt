@@ -1,5 +1,6 @@
 package cz.maks.model
 
+import cz.maks.strategies.Activation
 import cz.maks.strategies.ActivationFunction
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -18,7 +19,7 @@ class ActivationFunctionTest {
 
     )
     fun testSigmaImplementation(input: Double, expected: Double) {
-        assertThat(ActivationFunction.SIGMOID.apply(input))
+        assertThat(Activation.sigmoid().apply(input))
                 .isEqualTo(expected)
     }
 
@@ -33,7 +34,7 @@ class ActivationFunctionTest {
 
     )
     fun testTanHImplementation(input: Double, expected: Double) {
-        assertThat(ActivationFunction.TANH.apply(input))
+        assertThat(Activation.tanh().apply(input))
                 .isEqualTo(expected)
     }
 
@@ -50,7 +51,7 @@ class ActivationFunctionTest {
 
     )
     fun testReLuImplementation(input: Double, expected: Double) {
-        assertThat(ActivationFunction.RECTIFIED_LINEAR_UNIT.apply(input))
+        assertThat(Activation.relu().apply(input))
                 .isEqualTo(expected)
     }
 
